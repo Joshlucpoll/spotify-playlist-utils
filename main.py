@@ -2,7 +2,6 @@ from datetime import datetime
 from dateutil import parser
 from functools import cmp_to_key
 from io import BytesIO
-import json
 import asyncio
 import random
 import requests
