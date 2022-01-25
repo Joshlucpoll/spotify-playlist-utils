@@ -28,7 +28,7 @@ This script is able to create a reordered playlist from your existing Spotify pl
 
 There are two playlist types the script can create:
 - Shuffled
-- Newest (songs added my recently are at the top by default)
+- Newest (songs added most recently are at the top by default)
 
 This script only modifies its own playlists that it creates, that is to say the playlists you have made are not modified.
 
