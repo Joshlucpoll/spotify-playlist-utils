@@ -56,7 +56,7 @@ For this script to work you will need to create a Spotify application from the S
 
 1) [Create a Spotify developer account](https://developer.spotify.com/dashboard) if you have not already
 2) [Visit your application dashboard](https://developer.spotify.com/dashboard/applications) and create a new app, name and description aren't important (this app is only for your personal use)
-3) Click 'Edit Settings' and add this website url to the Redirect URIs section: `https://redirect-uri-capture.joshlucpoll.dev/spotify-callback` *[sidenote](##the-redirect-uri)*
+3) Click 'Edit Settings' and add this website url to the Redirect URIs section: `https://redirect-uri-capture.joshlucpoll.dev/spotify-callback` *[sidenote](#the-redirect-uri)*
 4) On the dashboard for your app copy your 'Client ID' and paste it into the `config.py` file so it has this line:
    ```
    CLIENT_ID = "<Client ID>"
