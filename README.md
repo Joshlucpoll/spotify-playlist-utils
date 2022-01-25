@@ -123,11 +123,18 @@ In the `config.py` file you will also find a `PLAYLIST_ARE_PUBLIC` constant. Thi
 
 ## Try it out!
 
-Run the `main.py` script (if you don't have python installed, you can follow [this guide](https://realpython.com/installing-python/))
+You will need Python3 to run the script -- if you don't have python installed, you can follow [this guide](https://realpython.com/installing-python/)
 
-The first time you run it you should get a discord message asking for an access code. Click the link and sign in with your Spotify account. Copy the access code from the capture website and paste it back into the same channel.
+Install the required packages using:
+```
+python3 -m pip install -r requirement.txt
+```
 
-If successful you should have new playlists create within your account!
+Run the `main.py` script
+
+The first time you run it you should get a discord message asking for an access code. Click the link and sign in with your Spotify account. Copy the access code from the capture website and paste it back into the same channel. The script uses a cache to store Spotify credentials so you won't be asked to sign in every time the script runs.
+
+If successful you should have new playlists created within your account!
 
 ## Automation
 
