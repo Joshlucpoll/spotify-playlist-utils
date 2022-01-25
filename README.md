@@ -38,7 +38,7 @@ This script uses Discord as an interface for communication and authentication pu
 
 ### Before you get started
 
-### Download the repository
+#### Download the repository
 
 If you have `git` installed:
 ```
