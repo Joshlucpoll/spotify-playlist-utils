@@ -26,6 +26,33 @@ from config import (
 client = discord.Client()
 
 
+def addImageToPlaylist(sp, img_url, patch_img_path, playlist_id):
+    response = requests.get(img_url)
+    img = Image.open(BytesIO(response.content))
+    shuffle_img = Image.open(patch_img_path)
+
+    width, height = img.size
+
+    shuffle_img.thumbnail((width / 3, width / height * shuffle_img.size[0]))
+
+    img.paste(
+        shuffle_img,
+        (
+            round((img.size[0] - img.size[1]) / 2 + img.size[1] / 50),
+            round(img.size[1] - shuffle_img.size[1] - img.size[1] / 50),
+        ),
+        shuffle_img,
+    )
+
+    buffered = BytesIO()
+    img.thumbnail((300, 300))
+    # img.show()
+    img.save(buffered, format="JPEG")
+    img_str = base64.b64encode(buffered.getvalue())
+
+    sp.playlist_upload_cover_image(playlist_id, img_str)
+
+
 def get_shuffled_generated_playlist(sp, original_playlist_id):
     results = sp.user_playlists(sp.me()["id"])
 
@@ -101,32 +128,6 @@ def update_shuffle_playlists(sp):
         tracks_id = []
         generated_playlist = get_shuffled_generated_playlist(sp, playlist_id)
 
-        response = requests.get(sp.playlist(playlist_id)["images"][0]["url"])
-        img = Image.open(BytesIO(response.content))
-        shuffle_img = Image.open("shuffle.png")
-
-        width, height = img.size
-
-        shuffle_img.thumbnail((width / 3, width / height * shuffle_img.size[0]))
-
-        img.paste(
-            shuffle_img,
-            (
-                round((img.size[0] - img.size[1]) / 2 + img.size[1] / 50),
-                round(img.size[1] - shuffle_img.size[1] - img.size[1] / 50),
-            ),
-            shuffle_img,
-        )
-        # img.show()
-
-        buffered = BytesIO()
-        img.thumbnail((300, 300))
-        # img.show()
-        img.save(buffered, format="JPEG")
-        img_str = base64.b64encode(buffered.getvalue())
-
-        sp.playlist_upload_cover_image(generated_playlist["id"], img_str)
-
         for track in map(
             lambda track: track["track"]["id"], get_playlist_songs(sp, playlist_id)
         ):
@@ -145,6 +146,13 @@ def update_shuffle_playlists(sp):
         tracksGrouped = list(divide_chunks(tracks_id, 100))
         for trackGroup in tracksGrouped:
             sp.playlist_add_items(generated_playlist["id"], trackGroup)
+
+        addImageToPlaylist(
+            sp,
+            sp.playlist(playlist_id)["images"][0]["url"],
+            "shuffle.png",
+            generated_playlist["id"],
+        )
 
 
 def update_newest_playlists(sp):
@@ -175,6 +183,13 @@ def update_newest_playlists(sp):
 
         for trackGroup in tracksGrouped:
             sp.playlist_add_items(generated_playlist["id"], trackGroup)
+
+        addImageToPlaylist(
+            sp,
+            sp.playlist(playlist_id)["images"][0]["url"],
+            "new.png",
+            generated_playlist["id"],
+        )
 
 
 async def get_access_token_discord(sp: spotipy.Spotify, auth, channel):
