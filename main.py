@@ -2,6 +2,7 @@ from datetime import datetime
 from dateutil import parser
 from functools import cmp_to_key
 from io import BytesIO
+import os
 import base64
 import asyncio
 import random
@@ -22,6 +23,9 @@ from config import (
     PLAYLISTS_TO_SHUFFLE,
     PLAYLISTS_TO_NEWEST,
 )
+
+file_path = os.path.dirname(os.path.abspath(__file__))
+os.chdir(file_path)
 
 client = discord.Client()
 
