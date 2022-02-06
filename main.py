@@ -250,8 +250,6 @@ async def on_ready():
             update_newest_playlists(sp)
             await channel.send("Success! Playlists updated")
 
-        client.close()
-
     except Exception as e:
         embed = discord.Embed(
             title="An error occurred",
@@ -260,6 +258,9 @@ async def on_ready():
             color=0xFF0000,
         )
         await channel.send(embed=embed)
+
+    finally:
+        await client.close()
 
 
 client.run(DISCORD_TOKEN)
