@@ -7,7 +7,7 @@ WORKDIR /app
 COPY requirements.txt requirements.txt
 RUN pip3 install -r requirements.txt
 
-COPY cron-automation crontab-automation
+RUN printf "0 8 * * * python3 /app/main.py\n" >> crontab-automation
 RUN crontab crontab-automation
 
 COPY main.py main.py

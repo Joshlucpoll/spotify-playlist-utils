@@ -6,7 +6,7 @@
   - [What is this](#what-is-this)
   - [Setting up](#setting-up)
     - [Before you get started](#before-you-get-started)
-    - [Download the repository](#download-the-repository)
+      - [Download the repository](#download-the-repository)
       - [The Config File](#the-config-file)
       - [Create a Spotify Application](#create-a-spotify-application)
       - [Create Discord Bot](#create-discord-bot)
@@ -17,6 +17,9 @@
   - [Automation](#automation)
       - [Windows](#windows)
       - [Linux](#linux)
+      - [Docker](#docker)
+        - [Custom Cron Timing](#custom-cron-timing)
+        - [Running The Container](#running-the-container)
   - [The Redirect URI](#the-redirect-uri)
 
 ## What is this
@@ -48,7 +51,7 @@ else you can [download the zip](https://github.com/Joshlucpoll/spotify-playlist-
 
 #### The Config File
 
-This script comes with a `config.py` file that holds all the configuration parameters
+This script comes with a `.env` file that holds all the configuration parameters
 
 #### Create a Spotify Application
 
@@ -57,14 +60,14 @@ For this script to work you will need to create a Spotify application from the S
 1) [Create a Spotify developer account](https://developer.spotify.com/dashboard) if you have not already
 2) [Visit your application dashboard](https://developer.spotify.com/dashboard/applications) and create a new app, name and description aren't important (this app is only for your personal use)
 3) Click 'Edit Settings' and add this website url to the Redirect URIs section: `https://redirect-uri-capture.joshlucpoll.dev/spotify-callback` *[sidenote](#the-redirect-uri)*
-4) On the dashboard for your app copy your 'Client ID' and paste it into the `config.py` file so it has this line:
+4) On the dashboard for your app copy your 'Client ID' and paste it into the `.env` file so it has this line:
    ```
-   CLIENT_ID = "<Client ID>"
+   CLIENT_ID="<Client ID>"
    ```
    where `<Client ID>` is the Client ID
 5) Do the same with your 'Client Secret' (you will have to click show Client Secret):
    ```
-   CLIENT_SECRET = "<Client Secret>"
+   CLIENT_SECRET="<Client Secret>"
    ```
    where `<Client Secret>` is the Client Secret
 
@@ -76,9 +79,9 @@ This script uses a discord bot to gain the access token and log events, so you'l
 2) [Go to your application tab](https://discord.com/developers/applications) in the Discord Developer  portal
 3) Create a new application and name is appropriately
 4) Go to the bot tab and create a new bot (I would recommend unchecking public bot -- so only you can use it)
-5) Copy your bot token and paste it into the `config.py` file:
+5) Copy your bot token and paste it into the `.env` file:
    ```
-   DISCORD_TOKEN = "<bot token>"
+   DISCORD_TOKEN="<bot token>"
    ```
    where `<bot token>` is replaced with your bot token
 
@@ -90,9 +93,9 @@ Now to add your bot to your server:
    ```
 3) Select server to add bot
 4) In the server you just added the bot right click the channel your want the bot to use and Copy ID
-5) Paste this ID into the `config.py` file:
+5) Paste this ID into the `.env` file:
    ```
-   DISCORD_CHANNEL = <ID>
+   DISCORD_CHANNEL=<ID>
    ```
    where `<ID>` is replace with the channel ID
 
@@ -108,18 +111,18 @@ https://open.spotify.com/playlist/<PLAYLIST_ID>?si=<SI>
 ```
 where `<PLATLIST_ID>` and `<SI>` are random strings of characters
 
-Copy your playlist id and paste it into the `config.py` file:
+Copy your playlist id and paste it into the `.env` file:
 ```
-PLAYLISTS_TO_SHUFFLE = ["<PLAYLIST_ID_1>", "<PLAYLIST_ID_2>", "<PLAYLIST_ID_3>"]
-PLAYLISTS_TO_NEWEST = ["<PLAYLIST_ID_1>", "<PLAYLIST_ID_2>"]
+PLAYLISTS_TO_SHUFFLE=["<PLAYLIST_ID_1>", "<PLAYLIST_ID_2>", "<PLAYLIST_ID_3>"]
+PLAYLISTS_TO_NEWEST=["<PLAYLIST_ID_1>", "<PLAYLIST_ID_2>"]
 ```
 where `<PLAYLIST_ID_x>` are your playlist IDs
 
-**note** `PLAYLISTS_TO_SHUFFLE` and `PLAYLISTS_TO_NEWEST` can have zero or more values -- if there are zero values: `PLAYLISTS_TO_SHUFFLE = []`
+**note** `PLAYLISTS_TO_SHUFFLE` and `PLAYLISTS_TO_NEWEST` can have zero or more values -- if there are zero values: `PLAYLISTS_TO_SHUFFLE=[]`
 
 ### Extra Parameters
 
-In the `config.py` file you will also find a `PLAYLIST_ARE_PUBLIC` constant. This alters the the output playlist visibility, either `True` or `False`
+In the `.env` file you will also find a `PLAYLIST_ARE_PUBLIC` constant. This alters the the output playlist visibility, either `True` or `False`
 
 ## Try it out!
 
@@ -183,8 +186,53 @@ This cron job executes daily at 8:00 am. You can adjust the time at which it exe
 And your done! Cron should execute the script every day.
 
 
+#### Docker
+
+This script can also be be used in a docker environment. By default the script will run every day at 8:00. If you want to change this timing go to [custom cron timing](#custom-cron-timing) else [continue to running the container](#default-config)
+
+##### Custom Cron Timing
+
+1) Locate the `DockerFile` file on line 10:
+
+```
+RUN printf "0 8 * * * python3 /app/main.py\n" >> crontab-automation
+```
+
+2) Change `0 8 * * *` to preferred [cron timing](https://crontab.guru)
+
+3) Build the container:
+
+```
+docker build -t spotify-playlist-utils <path_to_root_folder>
+```
+
+4) Continue to [running the container](#running-the-container), ignoring the pulling stage.
+##### Running The Container
+
+To start, pull the [docker image](https://hub.docker.com/r/joshlucpoll/spotify-playlist-utils) from docker hub:
+```
+docker pull joshlucpoll/spotify-playlist-utils
+```
+
+Now run the container: 
+
+1) with `.env` file (same one created in the guide -- you may need to [download from Github](https://github.com/Joshlucpoll/spotify-playlist-utils/blob/main/.env)):
+
+```
+docker run --env-file <path_to_.env_file> <image_id>
+```
+
+2) with individual environment variables:
+
+```
+docker run -e CLIENT_ID="<client_id>" -e CLIENT_SECRET="<client_secret>" -e DISCORD_TOKEN="<discord_token>" -e DISCORD_CHANNEL=<discord_channel> -e PLAYLISTS_TO_SHUFFLE=[] -e PLAYLISTS_TO_NEWEST=[] -e PLAYLIST_ARE_PUBLIC=True <image_id>
+```
+
+The container should now be running and will update your playlists automatically!
 
 ## The Redirect URI
 
 For the script to read your playlists it needs to gain an access token from Spotify. This is done by creating a URL that points to Spotify asking you to authenticate. Once you sign in spotify sends an access code to a callback URL. Therefore, to capture this code, I have created a simple [website](https://redirect-uri-capture.joshlucpoll.dev/spotify-callback) that extracts the code allowing your to copy it back into discord. This website's source code in [available here](https://github.com/joshlucpoll/redirect-uri-capture)
+
+*[back up](#create-a-spotify-application)*
 
