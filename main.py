@@ -14,15 +14,26 @@ import spotipy
 from spotipy.oauth2 import SpotifyOauthError
 from modifiedSpotifyAuth import ModifiedSpotifyAuth
 
-from config import (
-    CLIENT_ID,
-    CLIENT_SECRET,
-    DISCORD_TOKEN,
-    DISCORD_CHANNEL,
-    PLAYLIST_ARE_PUBLIC,
-    PLAYLISTS_TO_SHUFFLE,
-    PLAYLISTS_TO_NEWEST,
-)
+import json
+from dotenv import load_dotenv
+
+load_dotenv()
+
+
+def getEnvVar(name):
+    try:
+        return json.loads(os.environ[name])
+    except:
+        return os.environ[name]
+
+
+CLIENT_ID = getEnvVar("CLIENT_ID")
+CLIENT_SECRET = getEnvVar("CLIENT_SECRET")
+DISCORD_TOKEN = getEnvVar("DISCORD_TOKEN")
+DISCORD_CHANNEL = int(getEnvVar("DISCORD_CHANNEL"))
+PLAYLIST_ARE_PUBLIC = bool(getEnvVar("PLAYLIST_ARE_PUBLIC"))
+PLAYLISTS_TO_SHUFFLE = getEnvVar("PLAYLISTS_TO_SHUFFLE")
+PLAYLISTS_TO_NEWEST = getEnvVar("PLAYLISTS_TO_NEWEST")
 
 file_path = os.path.dirname(os.path.abspath(__file__))
 os.chdir(file_path)
@@ -72,8 +83,7 @@ def get_shuffled_generated_playlist(sp, original_playlist_id):
     original_playlist = sp.playlist(original_playlist_id)
 
     description = "Shuffled version of {0}   •   {1}? <-- DO NOT DELETE THIS ID".format(
-        original_playlist["name"], original_playlist_id
-    )
+        original_playlist["name"], original_playlist_id)
 
     return sp.user_playlist_create(
         sp.me()["id"],
@@ -98,8 +108,7 @@ def get_newest_generated_playlist(sp, original_playlist_id):
     original_playlist = sp.playlist(original_playlist_id)
 
     description = "Newest version of {0}   •   {1}+ <-- DO NOT DELETE THIS ID".format(
-        original_playlist["name"], original_playlist_id
-    )
+        original_playlist["name"], original_playlist_id)
 
     return sp.user_playlist_create(
         sp.me()["id"],
@@ -113,7 +122,7 @@ def divide_chunks(l, n):
 
     # looping till length l
     for i in range(0, len(l), n):
-        yield l[i : i + n]
+        yield l[i: i + n]
 
 
 def get_playlist_songs(sp, playlist_id):
@@ -133,8 +142,8 @@ def update_shuffle_playlists(sp):
         generated_playlist = get_shuffled_generated_playlist(sp, playlist_id)
 
         for track in map(
-            lambda track: track["track"]["id"], get_playlist_songs(sp, playlist_id)
-        ):
+                lambda track: track["track"]["id"],
+                get_playlist_songs(sp, playlist_id)):
             tracks_id.append(track)
 
         tracks_id = list(filter(lambda track: track, tracks_id))
@@ -167,12 +176,14 @@ def update_newest_playlists(sp):
         for track in get_playlist_songs(sp, playlist_id):
             tracks.append(track)
 
-        tracks = list(filter(lambda track: track["track"]["id"] != None, tracks))
+        tracks = list(
+            filter(lambda track: track["track"]["id"] != None, tracks))
 
         def compareDateAdded(a, b):
             return parser.parse(a["added_at"]) < parser.parse(b["added_at"])
 
-        tracks = sorted(tracks, key=cmp_to_key(compareDateAdded), reverse=False)
+        tracks = sorted(tracks, key=cmp_to_key(
+            compareDateAdded), reverse=False)
 
         tracks.reverse()
 
