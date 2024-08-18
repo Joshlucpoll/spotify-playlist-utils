@@ -1,6 +1,8 @@
+APScheduler==3.10.4
 discord.py==1.7.3
 Pillow==9.1.1
 python-dotenv==0.20.0
 python_dateutil==2.8.2
 requests==2.27.1
-spotipy==2.19.0
+spotipy==2.24.0
+tenacity==9.0.0
